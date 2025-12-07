@@ -25,7 +25,7 @@ Pin No      Function        Description
 #define FWD 9         //Output PWM to H-Bridge (motor forward (LPWM in datasheet))
 #define TB_TPS1 A0    //Analog value of throttle body position sensor #1
 #define PWM_HOLD 18   //Value sent to analogWrite() that best holds the TB in a position against the internal return spring
-#define PWM_SLOW 50   //Use this value to slowly open the TB (for testing purposes)
+#define PWM_SLOW 60   //Use this value to slowly open the TB (for testing purposes)
 
 int target = 250;     //Target value for TB_TPS1
 
@@ -45,24 +45,42 @@ void setup()
 void loop()
 {
   //Use this block of code to stop the TB while developing
-  //while(1);
+  while(1);
 
-  delay(1000);
-  Serial.print("Value: ");
+  //Start opening up the TB
+  analogWrite(FWD, PWM_SLOW);
+
+  int nb_tries = 0; //Number of iterations in the while loop below
+
+  //Keep opening until we reach target
+  while(analogRead(A0) > target)
+  {
+    nb_tries++; //increase number of tries
+    delay(50);
+  }
+
+  //By here we should have reached the target (or exceeded)
+  //Lower number on analogRead = TB more open
+  //Higher number on analogRead = TB closed
+
+  Serial.print("Target: ");
+  Serial.print(target);
+  Serial.print(", Value: ");
   Serial.print(analogRead(TB_TPS1));
-  
-  Serial.print(". Opening up...");
-  analogWrite(FWD, PWM_SLOW); //Open up TB slowly
-  delay(1000);
-  Serial.print("HOLD. Value: ");
-  
-  analogWrite(FWD, PWM_HOLD);
-  delay(500);
-  Serial.println(analogRead(TB_TPS1));
-  delay(500);
+  Serial.print(", tries: ");
+  Serial.println(nb_tries);
 
-  analogWrite(FWD, 0); //Let TB close again
+  //Hold TB
+  analogWrite(FWD, PWM_HOLD);
+
+  nb_tries = 0;
+
   delay(1000);
+
+  //Close TB again
+  analogWrite(FWD, LOW);
+  delay(1000); //1 sec delay to let the return spring do its thing
+
 
   //analogRead is between 0 and 1023
 }
