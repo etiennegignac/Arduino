@@ -37,7 +37,7 @@ void setup()
 
 void loop()
 {
-  while(1); //Use this to stop the TB while developing
+  //while(1); //Use this to stop the TB while developing
   
   
   /*Results:
@@ -54,5 +54,5 @@ void loop()
   70: on the faster side, could be good for calibration
   100: Full
   */
-  analogWrite(FWD, 18);
+  analogWrite(FWD, 100);
 }
